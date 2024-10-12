@@ -1,6 +1,7 @@
-package main;
+package view;
 
-
+import controller.KeyHandler;
+import controller.MouseHandler;
 import entity.Building;
 import entity.Player;
 import tile.TileManager;
