@@ -5,7 +5,9 @@ plugins {
 group 'com.yourcompany'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 17
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
@@ -24,7 +26,7 @@ test {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'Main'  // Adjust this line according to your main class path
+                'Main-Class': 'Main'  // Adjust this line according to your main class path
         )
     }
     from {
