@@ -1,8 +1,8 @@
 package entity;
 
-import main.GamePanel;
-import main.KeyHandler;
-import main.MouseHandler;
+import view.GamePanel;
+import controller.KeyHandler;
+import controller.MouseHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
