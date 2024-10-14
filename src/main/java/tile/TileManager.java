@@ -20,7 +20,7 @@ public class TileManager {
     public TileManager(GamePanel gp) throws IOException {
         this.gp = gp;
         tiles = loadTileImages();
-        String filepath = "/map/map01.txt";
+        String filepath = "/map/map02.txt";
         mapDimensions = getMapDimensions(filepath);
         mapTileNum = loadMap(filepath);
     }
@@ -90,27 +90,26 @@ public class TileManager {
 
     public void draw(Graphics2D g2) {
 
-//        g2.drawImage(tile[0].image, 0,0, gp.tileSize, gp.tileSize, null);
+        for (int i = 0; i < this.mapDimensions.width; i++) {
+            for (int j = 0; j < this.mapDimensions.height; j++) {
 
-        int startCol = gp.getCamera().x ;
-        int startRow = gp.getCamera().y ;
 
-        int offsetX = gp.getCamera().x % gp.tileSize;
-        int offsetY = gp.getCamera().y % gp.tileSize;
 
-        int x = -offsetX;
-        int y = -offsetY;
+                int tileNum = mapTileNum[i][j];
+                int worldX = i * gp.tileSize;
+                int worldY = j * gp.tileSize;
+                int screenX = worldX - gp.getCamera().x * gp.tileSize;
+                int screenY = worldY - gp.getCamera().y * gp.tileSize;
 
-        for (int row = startRow; row < startRow + gp.maxScreenRow + 1; row++) {
-            for (int col = startCol; col < startCol + gp.maxScreenCol + 1; col++) {
-                if (row >= 0 && row < mapTileNum[0].length && col >= 0 && col < mapTileNum.length) {
-                    int tileNum = mapTileNum[col][row];
-                    g2.drawImage(tiles[tileNum].image, x, y, gp.tileSize, gp.tileSize, null);
+
+                if (i - 1 < (gp.getCamera().x + gp.maxScreenCol) &&
+                    i - 1 > (gp.getCamera().x - gp.maxScreenCol) &&
+                    j - 1 < (gp.getCamera().y + gp.maxScreenRow) &&
+                    j - 1 > (gp.getCamera().y - gp.maxScreenRow)
+                ) {
+                    g2.drawImage(tiles[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                 }
-                x += gp.tileSize;
             }
-            x = -offsetX;
-            y += gp.tileSize;
         }
 
 

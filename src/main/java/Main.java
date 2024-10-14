@@ -24,6 +24,7 @@ public class Main {
         window.setLocationRelativeTo(null);
         window.setVisible(true);
 
+        window.createBufferStrategy(3);
 
         gamePanel.starGameThread();
     }
