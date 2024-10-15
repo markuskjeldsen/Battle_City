@@ -1,131 +1,116 @@
 package tile;
 
 
-
 import view.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 
 public class TileManager {
 
-    GamePanel gp;
-    Tile[] tile;
-    int[][] mapTileNum;
+    private final GamePanel gp;
+    private final Tile[] tiles;
+    private final int[][] mapTileNum;
+    private final MapDimensions mapDimensions;
 
-
-
-    public TileManager(GamePanel gp) {
-
+    public TileManager(GamePanel gp) throws IOException {
         this.gp = gp;
-        mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
-
-        tile = new Tile[10];
-        getTileImage();
-        loadMap("/map/map00.txt");
-
+        tiles = loadTileImages();
+        String filepath = "/map/map02.txt";
+        mapDimensions = getMapDimensions(filepath);
+        mapTileNum = loadMap(filepath);
     }
-    public void getTileImage(){
 
-        try {
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(getClass().getResourceAsStream("/tiles/grass00.png"));
+    public MapDimensions getMapDimensions() {
+        return mapDimensions;
+    }
 
-            tile[1] = new Tile();
-            tile[1].image = ImageIO.read(getClass().getResourceAsStream("/tiles/dirt00.png"));
-
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(getClass().getResourceAsStream("/tiles/wall00.png"));
-
-            tile[3] = new Tile();
-            tile[3].image = ImageIO.read(getClass().getResourceAsStream("/tiles/water00.png"));
-
-
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    private Tile[] loadTileImages() throws IOException {
+        String[] strings = new String[]{
+                "/tiles/grass00.png",
+                "/tiles/dirt00.png",
+                "/tiles/wall00.png",
+                "/tiles/water00.png"
+        };
+        Tile[] tiles = new Tile[strings.length];
+        for (int i = 0; i < strings.length; i++) {
+            tiles[i] = new Tile(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream(strings[i]))));
         }
-
-
+        return tiles;
     }
-    public void loadMap(String filepath) {
 
-        try {
-            InputStream is = getClass().getResourceAsStream(filepath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    MapDimensions getMapDimensions(String filepath) throws IOException {
+        try (BufferedReader reader = getBr(filepath)) {
+            String line;
+            int width = 0;
+            int height = 0;
 
-
-            int col = 0;
-            int row = 0;
-
-            while(col < gp.maxScreenCol && row < gp.maxScreenRow) {
-                String line = br.readLine();
-
-                while(col < gp.maxScreenCol) {
-
-                    String[] numbers = line.split(" ");
-                    int num = Integer.parseInt(numbers[col]);
-
-                    mapTileNum[col][row] = num;
-                    col++;
+            while ((line = reader.readLine()) != null) {
+                if (width == 0) {
+                    width = line.trim().split("\\s+").length;
                 }
-                if(col == gp.maxScreenCol){
-                    row++;
-                    col = 0;
+                height++;
+            }
+            return new MapDimensions(width, height);
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    public record MapDimensions(int width, int height) {
+    }
+
+    public int[][] loadMap(String filepath) throws IOException {
+        int[][] mapTileNum = new int[mapDimensions.width][mapDimensions.height];
+        try (BufferedReader br = getBr(filepath)) {
+            String line;
+            int rowIndex = 0;
+            while ((line = br.readLine()) != null && rowIndex < mapDimensions.height) {
+                processMapLine(mapTileNum, line, rowIndex, mapDimensions.width);
+                rowIndex++;
+            }
+        }
+        return mapTileNum;
+    }
+
+    private void processMapLine(int[][] mapTileNum, String line, int rowIndex, int width) {
+        String[] numbers = line.split(" ");
+        for (int column = 0; column < width; column++) {
+            mapTileNum[column][rowIndex] = Integer.parseInt(numbers[column]);
+        }
+    }
+
+    private BufferedReader getBr(String filepath) {
+        return new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream(filepath))));
+    }
+
+    public void draw(Graphics2D g2) {
+
+        for (int i = 0; i < this.mapDimensions.width; i++) {
+            for (int j = 0; j < this.mapDimensions.height; j++) {
+
+
+
+                int tileNum = mapTileNum[i][j];
+                int worldX = i * gp.tileSize;
+                int worldY = j * gp.tileSize;
+                int screenX = worldX - gp.getCamera().x * gp.tileSize;
+                int screenY = worldY - gp.getCamera().y * gp.tileSize;
+
+
+                if (i - 1 < (gp.getCamera().x + gp.maxScreenCol) &&
+                    i - 1 > (gp.getCamera().x - gp.maxScreenCol) &&
+                    j - 1 < (gp.getCamera().y + gp.maxScreenRow) &&
+                    j - 1 > (gp.getCamera().y - gp.maxScreenRow)
+                ) {
+                    g2.drawImage(tiles[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
                 }
             }
-            br.close();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-
-
-
-
-
-    }
-    public void draw(Graphics2D g2){
-
-//        g2.drawImage(tile[0].image, 0,0, gp.tileSize, gp.tileSize, null);
-
-
-        int col = 0;
-        int row = 0;
-        int x = 0;
-        int y = 0;
-
-        while ( (col < gp.maxScreenCol)  && (row < gp.maxScreenRow)  ){
-            int tileNum = mapTileNum[col][row];
-
-
-            g2.drawImage(tile[tileNum].image, x,y, gp.tileSize, gp.tileSize, null);
-            col++;
-            x += gp.tileSize;
-
-            if(col == gp.maxScreenCol) {
-                col = 0;
-                x = 0;
-                row++;
-                y += gp.tileSize;
-            }
-
-
-
-
-        }
-
-
-
-
-
-
-
 
 
     }

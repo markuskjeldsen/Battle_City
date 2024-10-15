@@ -1,42 +1,29 @@
 package entity;
 
-import view.GamePanel;
-import controller.KeyHandler;
 import controller.MouseHandler;
+import view.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 
-public class Building extends Entity{
-    GamePanel gp;
-    MouseHandler mouseH;
-    KeyHandler keyH;
-    public Point p;
-    public boolean enable;
+public class Building extends Entity {
+    public boolean isScheduledForDestruction;
+    private final MouseHandler mouseH;
+    private final GamePanel gp;
+    public int x;
+    public int y;
 
 
-    public Building(GamePanel gp, KeyHandler keyH,MouseHandler mouseH, Point p){
-
-        this.gp = gp;
-        this.keyH = keyH;
+    public Building(MouseHandler mouseH, GamePanel gp, int buildingX, int buildingY) {
         this.mouseH = mouseH;
-        this.p = p;
-
-        setDefaultValues(p);
+        this.gp = gp;
+        this.x = buildingX;
+        this.y = buildingY;
+        isScheduledForDestruction = false;
         getImage();
-
-
-    }
-    private void setDefaultValues(Point p){
-
-        enable = true;
-        x = (p.x/gp.tileSize) *gp.tileSize;
-        y = (p.y/gp.tileSize) *gp.tileSize;
-
-
     }
 
-    public void getImage(){
+    public void getImage() {
 
         try {
 
@@ -47,23 +34,22 @@ public class Building extends Entity{
         }
     }
 
-    public void update(){
-
-
-        if(mouseH.right){ //destroy houses
-            if(x == (mouseH.point.x/gp.tileSize * gp.tileSize) && y == (mouseH.point.y/gp.tileSize * gp.tileSize)){
-                    enable = false;
+    public void update() {
+        if (mouseH.right) { //destroy houses
+            if (x == (mouseH.point.x / gp.tileSize ) && y == (mouseH.point.y / gp.tileSize )) {
+                isScheduledForDestruction = true;
             }
         }
 
 
     }
 
-    public void draw(Graphics2D g2) {
+    public void draw(Graphics2D g2, int tileSize, Camera camera) {
 
-        if (enable) {
-            g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
-        }
+        int x = this.x - camera.x;
+        int y = this.y - camera.y;
+
+        g2.drawImage(image, x * tileSize, y * tileSize, tileSize, tileSize, null);
 
     }
 
