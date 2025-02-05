@@ -1,5 +1,7 @@
 package controller;
 
+import view.GamePanel;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -8,8 +10,13 @@ import java.awt.event.MouseWheelListener;
 
 public class MouseHandler implements MouseListener, MouseWheelListener {
 
+    private final GamePanel gp;
     public boolean left, right, middle;
     public Point point;
+
+    public MouseHandler(GamePanel gp) {
+        this.gp = gp;
+    }
 
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
@@ -70,6 +77,7 @@ public class MouseHandler implements MouseListener, MouseWheelListener {
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-
+        int wheelRotation = mouseWheelEvent.getWheelRotation();
+        gp.resize(wheelRotation);
     }
 }

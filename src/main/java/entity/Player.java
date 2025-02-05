@@ -1,8 +1,8 @@
 package entity;
 
-import view.GamePanel;
 import controller.KeyHandler;
 import controller.MouseHandler;
+import view.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -46,16 +46,7 @@ public class Player extends Entity {
     }
 
     public void update() {
-        if (keyH.upPressed && y > 0) {
-            y -= speed;
-        } else if (keyH.downPressed && y < this.gp.getHeight() - gp.tileSize) {
-            y += speed;
-        } else if (keyH.leftPressed && x > 0) {
-            x -= speed;
-        } else if (keyH.rightPressed && x < this.gp.getWidth() - gp.tileSize) {
-            x += speed;
-        }
-
+        //TODO
     }
 
     public void draw(Graphics2D g2) {
