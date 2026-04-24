@@ -1,5 +1,6 @@
 package controller;
 
+import tile.BlockManager;
 import view.GamePanel;
 
 import java.awt.*;
@@ -9,75 +10,58 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public class MouseHandler implements MouseListener, MouseWheelListener {
-
     private final GamePanel gp;
-    public boolean left, right, middle;
+    public boolean left, right;
     public Point point;
+    public int tileX, tileY; // world tile coordinates
 
     public MouseHandler(GamePanel gp) {
         this.gp = gp;
     }
 
     @Override
-    public void mouseClicked(MouseEvent mouseEvent) {
-
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     @Override
-    public void mousePressed(MouseEvent mouseEvent) {
-        switch (mouseEvent.getButton()){
-            case 1: //left mouse
-                left = true;
-                break;
-            case 2: //mouse wheel
-                middle = true;
-                break;
-            case 3: //right mouse
-                right = true;
-                break;
-            default:
-                System.out.print("you pressed a key that has not been mapped ");
-                System.out.println(mouseEvent.getButton());
-
+    public void mousePressed(MouseEvent e) {
+        switch (e.getButton()) {
+            case 1 -> left = true;
+            case 2 -> {} // wheel zoom handled separately
+            case 3 -> right = true;
         }
-        point = mouseEvent.getPoint();
-
+        point = e.getPoint();
+        updateTileCoords();
     }
 
     @Override
-    public void mouseReleased(MouseEvent mouseEvent) {
-        switch (mouseEvent.getButton()){
-            case 1: //left mouse
-                left = false;
-                break;
-            case 2: //mouse wheel
-                middle = false;
-                break;
-            case 3: //right mouse
-                right = false;
-                break;
-            default:
-                System.out.print("you released a key that has not been mapped ");
-                System.out.println(mouseEvent.getButton());
-
+    public void mouseReleased(MouseEvent e) {
+        switch (e.getButton()) {
+            case 1 -> left = false;
+            case 2 -> {}
+            case 3 -> right = false;
         }
-        point = mouseEvent.getPoint();
-
+        point = e.getPoint();
+        updateTileCoords();
     }
 
     @Override
-    public void mouseEntered(MouseEvent mouseEvent) {
+    public void mouseEntered(MouseEvent e) {}
 
+    @Override
+    public void mouseExited(MouseEvent e) {
+        left = false;
+        right = false;
     }
 
     @Override
-    public void mouseExited(MouseEvent mouseEvent) {
-
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        gp.resize(e.getWheelRotation());
     }
 
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
-        int wheelRotation = mouseWheelEvent.getWheelRotation();
-        gp.resize(wheelRotation);
+    private void updateTileCoords() {
+        if (point != null) {
+            tileX = (point.x + (int)gp.camera.x) / BlockManager.TILE_SIZE;
+            tileY = (point.y + (int)gp.camera.y) / BlockManager.TILE_SIZE;
+        }
     }
 }
